@@ -55,7 +55,11 @@ export default async function AgentsPage() {
                             ) : (
                                 importedAgents.map((agent) => (
                                     <tr key={agent._id.toString()} className="border-b bg-white hover:bg-gray-50">
-                                        <td className="px-6 py-4 font-medium text-gray-900">{agent.name}</td>
+                                        <td className="px-6 py-4 font-medium text-gray-900">
+                                            <a href={`/dashboard/agents/${agent.retellAgentId}`} className="hover:underline">
+                                                {agent.name}
+                                            </a>
+                                        </td>
                                         <td className="px-6 py-4 font-mono text-xs">{agent.retellAgentId}</td>
                                         <td className="px-6 py-4">
                                             <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">

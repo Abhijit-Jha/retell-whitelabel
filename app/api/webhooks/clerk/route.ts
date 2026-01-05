@@ -72,9 +72,12 @@ export async function POST(req: Request) {
 
             // Create Default Workspace
             const workspaceName = `${name || 'My'}'s Workspace`
+            const slug = workspaceName.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Math.random().toString(36).substring(2, 7);
+
             const newWorkspace = await Workspace.create({
                 name: workspaceName,
                 ownerId: id,
+                slug: slug,
             })
 
             // Create Workspace Member
