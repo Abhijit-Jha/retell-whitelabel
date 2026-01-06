@@ -181,11 +181,22 @@ export async function updateRetellLLM(llmId: string, data: any) {
 }
 
 export async function createWebCall(agentId: string) {
-    const workspace = await getWorkspace();
-    if (!workspace.retellApiKey) throw new Error('Retell API Key not configured');
-    const apiKey = decrypt(workspace.retellApiKey);
-
+    console.log(`[createWebCall] Starting for agentId: ${agentId}`);
     try {
+        console.log('[createWebCall] Fetching workspace...');
+        const workspace = await getWorkspace();
+        console.log(`[createWebCall] Workspace found: ${workspace._id}`);
+
+        if (!workspace.retellApiKey) {
+            console.error('[createWebCall] Retell API Key missing in workspace');
+            throw new Error('Retell API Key not configured');
+        }
+
+        console.log('[createWebCall] Decrypting API key...');
+        const apiKey = decrypt(workspace.retellApiKey);
+        console.log('[createWebCall] API key decrypted (length: ' + apiKey.length + ')');
+
+        console.log('[createWebCall] Calling Retell API...');
         const response = await fetch('https://api.retellai.com/v2/create-web-call', {
             method: 'POST',
             headers: {
@@ -197,14 +208,19 @@ export async function createWebCall(agentId: string) {
             }),
         });
 
+        console.log(`[createWebCall] Retell API response status: ${response.status}`);
+
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || `Retell API Error: ${response.statusText}`);
+            const errorText = await response.text();
+            console.error(`[createWebCall] Retell API failed: ${response.status} ${response.statusText}`, errorText);
+            throw new Error(`Retell API Error: ${response.statusText} - ${errorText}`);
         }
 
-        return await response.json();
+        const data = await response.json();
+        console.log('[createWebCall] Success');
+        return data;
     } catch (error: any) {
-        console.error('Error creating web call:', error);
+        console.error('[createWebCall] Critical Error:', error);
         throw new Error(error.message || 'Failed to create web call');
     }
 }
